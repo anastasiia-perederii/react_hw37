@@ -1,18 +1,19 @@
 import React from 'react';
 import SmilesWinner from './components/SmilesWinner';
-import './components/styles.css';
+import EmojiItem from "./components/EmojiItem";
+import './index.css';
 
 class App extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
             emojis: [
-                { symbol: '😊', count: 0 },
-                { symbol: '😂', count: 0 },
-                { symbol: '😍', count: 0 },
-                { symbol: '🙄', count: 0 },
-                { symbol: '😵', count: 0 },
-                { symbol: '😎', count: 0 },
+                {symbol: '😊', count: 0},
+                {symbol: '😂', count: 0},
+                {symbol: '😍', count: 0},
+                {symbol: '🙄', count: 0},
+                {symbol: '😵', count: 0},
+                {symbol: '😎', count: 0},
             ],
             showResults: false,
         };
@@ -20,35 +21,49 @@ class App extends React.Component {
 
     handleEmojiClick = (index) => {
         this.setState(prevState => ({
-            emojis: prevState.emojis.map((emoji, i) => {
-                if (i === index) {
-                    return { ...emoji, count: emoji.count + 1 };
-                }
-                return emoji;
-            })
+            emojis: prevState.emojis.map((emoji, i) => (
+                i === index ? {...emoji, count: emoji.count + 1} : emoji
+            ))
         }));
     };
 
-    handleShowResults = () => {
-        this.setState({ showResults: true });
+    getWinner = () => {
+        let maxCount = -1;
+        let winnerIndex = -1;
+
+        this.state.emojis.forEach((emoji, index) => {
+            if (emoji.count > maxCount) {
+                maxCount = emoji.count;
+                winnerIndex = index;
+            }
+        });
+
+        return winnerIndex !== -1 ? this.state.emojis[winnerIndex] : null;
+    };
+
+    showResults = () => {
+        this.setState({showResults: true});
     };
 
     render() {
-        const { emojis, showResults } = this.state;
+        const {emojis, showResults} = this.state;
+        const winner = this.getWinner();
 
         return (
             <div className="container">
-                <h2>Smiles Voting App</h2>
+                <h1>Emoji Voting App</h1>
                 <ul>
                     {emojis.map((emoji, index) => (
-                        <li key={index} onClick={() => this.handleEmojiClick(index)}>
-                            {emoji.symbol}
-                            <span>Clicks: {emoji.count}</span>
-                        </li>
+                        <EmojiItem
+                            key={index}
+                            symbol={emoji.symbol}
+                            count={emoji.count}
+                            onClick={() => this.handleEmojiClick(index)}
+                        />
                     ))}
                 </ul>
-                <button onClick={this.handleShowResults}>Show Results</button>
-                <SmilesWinner emojis={emojis} showResults={showResults} />
+                <button onClick={this.showResults}>Show Results</button>
+                {showResults && <SmilesWinner winner={winner}/>}
             </div>
         );
     }
